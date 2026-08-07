@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Window from '../components/Window.astro';
 
 const LASTFM_API_KEY = import.meta.env.PUBLIC_LASTFM_API_KEY || '';
+const TMDB_API_KEY = import.meta.env.PUBLIC_TMDB_API_KEY || '';
 ---
 
 <html lang="en">
@@ -64,7 +65,7 @@ const LASTFM_API_KEY = import.meta.env.PUBLIC_LASTFM_API_KEY || '';
 			</div>
 		</div>
 
-		<script define:vars={{ LASTFM_API_KEY }}>
+		<script define:vars={{ LASTFM_API_KEY, TMDB_API_KEY }}>
 			function escapeHtml(text) {
 				const div = document.createElement('div');
 				div.textContent = text;
@@ -125,22 +126,55 @@ const LASTFM_API_KEY = import.meta.env.PUBLIC_LASTFM_API_KEY || '';
 					const image = imgMatch ? imgMatch[1] : '';
 					
 					const container = document.getElementById('letterboxd-content');
-					container.innerHTML = `
-						<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="widget-link">
-							<img src="${escapeHtml(image)}" 
-								alt="${escapeHtml(title)}" 
-								class="widget-image widget-image-poster" />
-							<div class="widget-content">
-								<div class="widget-title">${escapeHtml(title)} <span class="widget-year">(${escapeHtml(year)})</span></div>
-							</div>
-						</a>
-					`;
+					const renderContent = (directorName) => {
+						container.innerHTML = `
+							<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="widget-link">
+								<img src="${escapeHtml(image)}" 
+									alt="${escapeHtml(title)}" 
+									class="widget-image widget-image-poster" />
+								<div class="widget-content">
+									<div class="widget-title">${escapeHtml(title)} <span class="widget-year">(${escapeHtml(year)})</span></div>
+									<div class="widget-subtitle">${escapeHtml(directorName)}</div>
+								</div>
+							</a>
+						`;
+					};
+					
+					renderContent('...');
+					
+					if (title && year && TMDB_API_KEY) {
+						try {
+							const searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&year=${year}`;
+							const searchRes = await fetch(searchUrl);
+							
+							if (searchRes.ok) {
+								const searchData = await searchRes.json();
+								if (searchData.results && searchData.results.length > 0) {
+									const movieId = searchData.results[0].id;
+									
+									const creditsUrl = `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${TMDB_API_KEY}`;
+									const creditsRes = await fetch(creditsUrl);
+									
+									if (creditsRes.ok) {
+										const creditsData = await creditsRes.json();
+										const directors = creditsData.crew.filter(person => person.job === 'Director');
+										
+										if (directors.length > 0) {
+											const directorNames = directors.map(d => d.name).join(', ');
+											renderContent(directorNames);
+										}
+									}
+								}
+							}
+						} catch (e) {
+							console.error('TMDB fetch error:', e);
+						}
+					}
 				} catch (err) {
 					console.error('Letterboxd error:', err);
 					document.getElementById('letterboxd-content').innerHTML = '<p class="error">failed to load</p>';
 				}
 			}
-
 			fetchLastfm();
 			fetchLetterboxd();
 		</script>
