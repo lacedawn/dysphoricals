@@ -1,6 +1,12 @@
 ---
 import '../styles/global.css';
 import Window from '../components/Window.astro';
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('journal');
+const sortedEntries = entries.sort((a, b) => 
+  b.data.date.getTime() - a.data.date.getTime()
+);
 ---
 
 <html lang="en">
@@ -14,9 +20,93 @@ import Window from '../components/Window.astro';
 			<img src="/dysphoricals/bg.png" alt="" />
 		</div>
 		<div id="page-content">
-			<Window title="journal.log">
-				<p>hello world — journal</p>
-			</Window>
+			<div class="journal-container">
+				<Window title="journal.log">
+					{sortedEntries.length === 0 ? (
+						<p class="empty-state">no entries yet</p>
+					) : (
+						<ul class="entry-list">
+							{sortedEntries.map(entry => {
+								const slug = entry.id.replace(/\.md$/, '');
+								return (
+									<li class="entry-row">
+										<a href={`/dysphoricals/journal/${slug}`} class="entry-link">
+											<span class="entry-date">{entry.data.date.toISOString().split('T')[0]}</span>
+											<span class="entry-title">{entry.data.title}</span>
+										</a>
+									</li>
+								);
+							})}
+						</ul>
+					)}
+				</Window>
+			</div>
 		</div>
 	</body>
 </html>
+
+<style>
+	.journal-container {
+		padding: 48px;
+		max-width: 900px;
+		margin: 0 auto;
+		min-height: 100vh;
+	}
+
+	.empty-state {
+		color: var(--text-muted);
+		font-size: 0.85rem;
+	}
+
+	.entry-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.entry-row {
+		margin: 0;
+	}
+
+	.entry-link {
+		display: flex;
+		gap: 16px;
+		padding: 8px 12px;
+		text-decoration: none;
+		color: var(--text);
+		font-size: 0.85rem;
+	}
+
+	.entry-link:hover .entry-title {
+		text-decoration: underline;
+	}
+
+	.entry-date {
+		color: var(--text-muted);
+		min-width: 100px;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.entry-title {
+		color: var(--text);
+	}
+
+	@media (max-width: 900px) {
+		.journal-container {
+			padding: 24px;
+		}
+
+		.entry-link {
+			flex-direction: column;
+			gap: 4px;
+		}
+
+		.entry-date {
+			min-width: auto;
+			font-size: 0.75rem;
+		}
+	}
+</style>

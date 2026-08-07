@@ -1,0 +1,187 @@
+---
+import '../../styles/global.css';
+import Window from '../../components/Window.astro';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('journal');
+  return entries.map(entry => {
+    const slug = entry.id.replace(/\.md$/, '');
+    return {
+      params: { slug },
+      props: { entry },
+    };
+  });
+}
+
+type Props = {
+  entry: CollectionEntry<'journal'>;
+};
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const slug = entry.id.replace(/\.md$/, '');
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{entry.data.title}</title>
+	</head>
+	<body>
+		<div id="bg-layer">
+			<img src="/dysphoricals/bg.png" alt="" />
+		</div>
+		<div id="page-content">
+			<div class="entry-container">
+				<Window title={`${slug}.md`}>
+					<article class="entry-content">
+						<header class="entry-header">
+							<h1 class="entry-title">{entry.data.title}</h1>
+							<time class="entry-date" datetime={entry.data.date.toISOString()}>
+								{entry.data.date.toISOString().split('T')[0]}
+							</time>
+						</header>
+						<div class="entry-body">
+							<Content />
+						</div>
+					</article>
+				</Window>
+			</div>
+		</div>
+	</body>
+</html>
+
+<style>
+	.entry-container {
+		padding: 48px;
+		max-width: 900px;
+		margin: 0 auto;
+		min-height: 100vh;
+	}
+
+	.entry-content {
+		font-size: 0.9rem;
+		line-height: 1.7;
+	}
+
+	.entry-header {
+		margin-bottom: 32px;
+		padding-bottom: 16px;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.entry-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		margin: 0 0 8px 0;
+		color: var(--text);
+	}
+
+	.entry-date {
+		font-size: 0.8rem;
+		color: var(--text-muted);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.entry-body :global(h1),
+	.entry-body :global(h2),
+	.entry-body :global(h3),
+	.entry-body :global(h4),
+	.entry-body :global(h5),
+	.entry-body :global(h6) {
+		margin-top: 24px;
+		margin-bottom: 12px;
+		font-weight: 600;
+		color: var(--text);
+	}
+
+	.entry-body :global(h1) {
+		font-size: 1.4rem;
+	}
+
+	.entry-body :global(h2) {
+		font-size: 1.2rem;
+	}
+
+	.entry-body :global(h3) {
+		font-size: 1.05rem;
+	}
+
+	.entry-body :global(p) {
+		margin-bottom: 16px;
+	}
+
+	.entry-body :global(ul),
+	.entry-body :global(ol) {
+		margin-bottom: 16px;
+		padding-left: 24px;
+	}
+
+	.entry-body :global(li) {
+		margin-bottom: 6px;
+	}
+
+	.entry-body :global(a) {
+		color: var(--accent-lavender);
+		text-decoration: none;
+		border-bottom: 1px solid transparent;
+		transition: border-color 0.15s ease;
+	}
+
+	.entry-body :global(a:hover) {
+		border-bottom-color: var(--accent-lavender);
+	}
+
+	.entry-body :global(strong) {
+		font-weight: 600;
+		color: var(--text);
+	}
+
+	.entry-body :global(em) {
+		font-style: italic;
+	}
+
+	.entry-body :global(code) {
+		background: rgba(184, 160, 232, 0.1);
+		padding: 2px 6px;
+		border-radius: 3px;
+		font-size: 0.85em;
+		color: var(--accent-pink);
+	}
+
+	.entry-body :global(pre) {
+		background: rgba(184, 160, 232, 0.05);
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		padding: 16px;
+		margin-bottom: 16px;
+		overflow-x: auto;
+	}
+
+	.entry-body :global(pre code) {
+		background: none;
+		padding: 0;
+		color: var(--text);
+	}
+
+	.entry-body :global(blockquote) {
+		border-left: 3px solid var(--accent-lavender);
+		padding-left: 16px;
+		margin: 16px 0;
+		color: var(--text-muted);
+		font-style: italic;
+	}
+
+	@media (max-width: 900px) {
+		.entry-container {
+			padding: 24px;
+		}
+
+		.entry-title {
+			font-size: 1.3rem;
+		}
+	}
+</style>

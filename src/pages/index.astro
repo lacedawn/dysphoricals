@@ -35,6 +35,7 @@ function getStars(rating: number | null) {
 					<Window title="about.info" icon="♡">
 						<div class="content-block">
 							<p>hi! im lena. im a 17 years old high school student from iraq</p>
+							<p>read my <a href="/dysphoricals/journal" class="journal-link">journal</a></p>
 						</div>
 					</Window>
 				</div>
@@ -161,6 +162,11 @@ function getStars(rating: number | null) {
 		content: "↗ ";
 		color: var(--accent-lavender);
 		opacity: 0.5;
+	}
+
+	.journal-link {
+		color: var(--accent-lavender);
+		text-decoration: none;
 	}
 
 	@media (max-width: 900px) {
