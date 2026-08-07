@@ -28,17 +28,19 @@ jobs:
 
       - run: npm install
 
-      - name: Fetch Last.fm data
-        run: node scripts/fetch-lastfm.js
+      - name: Fetch Last.fm and Letterboxd data
+        run: |
+          node scripts/fetch-lastfm.js
+          node scripts/fetch-letterboxd.js
         env:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
 
-      - name: Commit Last.fm data if changed
+      - name: Commit data if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/data/lastfm.json
-          git diff --cached --quiet || git commit -m "update lastfm data" && git push
+          git add src/data/
+          git diff --cached --quiet || (git commit -m "update data [skip ci]" && git push)
 
       - run: npm run build
 
