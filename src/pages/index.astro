@@ -2,8 +2,7 @@
 import '../styles/global.css';
 import Window from '../components/Window.astro';
 
-const LASTFM_API_KEY = import.meta.env.PUBLIC_LASTFM_API_KEY || '';
-const TMDB_API_KEY = import.meta.env.PUBLIC_TMDB_API_KEY || '';
+const WORKER_URL = 'https://dysphoricals-api.dysphoricals.workers.dev';
 ---
 
 <html lang="en">
@@ -66,7 +65,7 @@ const TMDB_API_KEY = import.meta.env.PUBLIC_TMDB_API_KEY || '';
 			</div>
 		</div>
 
-		<script define:vars={{ LASTFM_API_KEY, TMDB_API_KEY }}>
+		<script define:vars={{ WORKER_URL }}>
 			function escapeHtml(text) {
 				const div = document.createElement('div');
 				div.textContent = text;
@@ -75,10 +74,7 @@ const TMDB_API_KEY = import.meta.env.PUBLIC_TMDB_API_KEY || '';
 
 			async function fetchLastfm() {
 				try {
-					const USER = 'Leno727';
-					const ENDPOINT = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${LASTFM_API_KEY}&format=json&limit=1`;
-					
-					const res = await fetch(ENDPOINT);
+					const res = await fetch(`${WORKER_URL}/lastfm`);
 					if (!res.ok) throw new Error('Last.fm fetch failed');
 					
 					const data = await res.json();
@@ -104,29 +100,11 @@ const TMDB_API_KEY = import.meta.env.PUBLIC_TMDB_API_KEY || '';
 
 			async function fetchLetterboxd() {
 				try {
-					const USER = 'lacedawn';
-					const RSS_URL = `https://letterboxd.com/${USER}/rss/`;
-					
-					const CORS_PROXY = 'https://corsproxy.io/?';
-					const res = await fetch(CORS_PROXY + encodeURIComponent(RSS_URL));
+					const res = await fetch(`${WORKER_URL}/letterboxd`);
 					if (!res.ok) throw new Error('Letterboxd fetch failed');
 					
-					const xml = await res.text();
-					const parser = new DOMParser();
-					const xmlDoc = parser.parseFromString(xml, 'text/xml');
-					
-					const item = xmlDoc.querySelector('item');
-					if (!item) throw new Error('No items found');
-					
-					const title = item.querySelector('letterboxd\\:filmTitle, filmTitle')?.textContent || '';
-					const year = item.querySelector('letterboxd\\:filmYear, filmYear')?.textContent || '';
-					const url = item.querySelector('link')?.textContent || '';
-					const ratingEl = item.querySelector('letterboxd\\:memberRating, memberRating');
-					const rating = ratingEl ? parseFloat(ratingEl.textContent) : null;
-					
-					const description = item.querySelector('description')?.textContent || '';
-					const imgMatch = description.match(/<img src="([^"]+)"/);
-					const image = imgMatch ? imgMatch[1] : '';
+					const data = await res.json();
+					const { title, year, url, rating, image } = data;
 					
 					const renderHearts = (rating) => {
 						if (!rating) return '';
@@ -171,28 +149,15 @@ const TMDB_API_KEY = import.meta.env.PUBLIC_TMDB_API_KEY || '';
 					
 					renderContent('...', rating);
 					
-					if (title && year && TMDB_API_KEY) {
+					if (title && year) {
 						try {
-							const searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&year=${year}`;
-							const searchRes = await fetch(searchUrl);
+							const tmdbRes = await fetch(`${WORKER_URL}/tmdb?title=${encodeURIComponent(title)}&year=${year}`);
 							
-							if (searchRes.ok) {
-								const searchData = await searchRes.json();
-								if (searchData.results && searchData.results.length > 0) {
-									const movieId = searchData.results[0].id;
-									
-									const creditsUrl = `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${TMDB_API_KEY}`;
-									const creditsRes = await fetch(creditsUrl);
-									
-									if (creditsRes.ok) {
-										const creditsData = await creditsRes.json();
-										const directors = creditsData.crew.filter(person => person.job === 'Director');
-										
-										if (directors.length > 0) {
-											const directorNames = directors.map(d => d.name).join(', ');
-											renderContent(directorNames, rating);
-										}
-									}
+							if (tmdbRes.ok) {
+								const tmdbData = await tmdbRes.json();
+								if (tmdbData.directors && tmdbData.directors.length > 0) {
+									const directorNames = tmdbData.directors.join(', ');
+									renderContent(directorNames, rating);
 								}
 							}
 						} catch (e) {
