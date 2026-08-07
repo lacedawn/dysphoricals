@@ -1,22 +1,8 @@
 ---
 import '../styles/global.css';
 import Window from '../components/Window.astro';
-import lastfmData from '../data/lastfm.json';
-import letterboxdData from '../data/letterboxd.json';
 
-function getStars(rating: number | null) {
-  if (!rating) return '';
-  const full = Math.floor(rating);
-  const half = rating % 1 !== 0;
-  
-  const starSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-  const halfStarSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" clip-path="inset(0 50% 0 0)"/></svg>`;
-  
-  let out = '';
-  for(let i=0; i<full; i++) out += starSvg;
-  if(half) out += halfStarSvg;
-  return out;
-}
+const LASTFM_API_KEY = import.meta.env.PUBLIC_LASTFM_API_KEY || '';
 ---
 
 <html lang="en">
@@ -62,38 +48,112 @@ function getStars(rating: number | null) {
 
 				<div class="window-wrapper window-music">
 					<Window title="lastlistened.ogg" icon="♫">
-						<div class="content-block">
-							{lastfmData && (
-								<a href={lastfmData.url} target="_blank" rel="noopener noreferrer" class="music-link">
-									<img src={lastfmData.image} alt="Album Art" class="music-art" />
-									<div class="music-info">
-										<div class="music-track">{lastfmData.name}</div>
-										<div class="music-artist">{lastfmData.artist}</div>
-									</div>
-								</a>
-							)}
+						<div class="content-block" id="lastfm-content">
+							<p class="loading">loading...</p>
 						</div>
 					</Window>
 				</div>
 
 				<div class="window-wrapper window-watch">
-					<Window title="lastwatched.ogg" icon="▶">
-						<div class="content-block">
-							{letterboxdData && (
-								<a href={letterboxdData.url} target="_blank" rel="noopener noreferrer" class="media-link">
-									<img src={letterboxdData.image} alt={letterboxdData.title} class="movie-poster" />
-									<div class="media-info">
-										<div class="media-title">{letterboxdData.title} <span class="media-year">({letterboxdData.year})</span></div>
-										{letterboxdData.director && <div class="media-director">{letterboxdData.director}</div>}
-										{letterboxdData.rating && <div class="media-rating" set:html={getStars(letterboxdData.rating)}></div>}
-									</div>
-								</a>
-							)}
+					<Window title="lastwatched.mkv" icon="▶">
+						<div class="content-block" id="letterboxd-content">
+							<p class="loading">loading...</p>
 						</div>
 					</Window>
 				</div>
 			</div>
 		</div>
+
+		<script define:vars={{ LASTFM_API_KEY }}>
+			async function fetchLastfm() {
+				try {
+					const USER = 'Leno727';
+					const ENDPOINT = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${LASTFM_API_KEY}&format=json&limit=1`;
+					
+					const res = await fetch(ENDPOINT);
+					if (!res.ok) throw new Error('Last.fm fetch failed');
+					
+					const data = await res.json();
+					const track = data.recenttracks.track[0];
+					
+					const container = document.getElementById('lastfm-content');
+					container.innerHTML = `
+						<a href="${track.url}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 16px; text-decoration: none; color: #e8dff0;">
+							<img src="${track.image.find(i => i.size === 'extralarge')?.['#text'] || track.image[track.image.length - 1]['#text']}" 
+								alt="Album Art" 
+								style="width: 160px; height: 160px; min-width: 160px; max-width: 160px; flex-shrink: 0; border-radius: 6px; object-fit: cover; border: 1px solid rgba(184, 160, 232, 0.4);" />
+							<div style="display: flex; flex-direction: column; gap: 4px;">
+								<div style="font-weight: 600; font-size: 0.95rem;">${track.name}</div>
+								<div style="font-size: 0.8rem; color: #c4b8d8;">${track.artist['#text']}</div>
+							</div>
+						</a>
+					`;
+				} catch (err) {
+					console.error('Last.fm error:', err);
+					document.getElementById('lastfm-content').innerHTML = '<p class="error">failed to load</p>';
+				}
+			}
+
+			async function fetchLetterboxd() {
+				try {
+					const USER = 'lacedawn';
+					const RSS_URL = `https://letterboxd.com/${USER}/rss/`;
+					
+					const CORS_PROXY = 'https://corsproxy.io/?';
+					const res = await fetch(CORS_PROXY + encodeURIComponent(RSS_URL));
+					if (!res.ok) throw new Error('Letterboxd fetch failed');
+					
+					const xml = await res.text();
+					const parser = new DOMParser();
+					const xmlDoc = parser.parseFromString(xml, 'text/xml');
+					
+					const item = xmlDoc.querySelector('item');
+					if (!item) throw new Error('No items found');
+					
+					const title = item.querySelector('filmTitle')?.textContent || '';
+					const year = item.querySelector('filmYear')?.textContent || '';
+					const url = item.querySelector('link')?.textContent || '';
+					
+					const description = item.querySelector('description')?.textContent || '';
+					const imgMatch = description.match(/<img src="([^"]+)"/);
+					const image = imgMatch ? imgMatch[1] : '';
+					
+					let director = '';
+					if (url) {
+						const baseFilmUrl = url.replace(`/${USER}`, '');
+						try {
+							const filmRes = await fetch(CORS_PROXY + encodeURIComponent(baseFilmUrl));
+							if (filmRes.ok) {
+								const filmHtml = await filmRes.text();
+								const dirMatch = filmHtml.match(/<meta name="twitter:data1" content="([^"]+)"/);
+								if (dirMatch) director = dirMatch[1];
+							}
+						} catch (e) {
+							console.log('Could not fetch director:', e);
+						}
+					}
+					
+					const container = document.getElementById('letterboxd-content');
+					container.innerHTML = `
+						<a href="${url}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 16px; text-decoration: none; color: #e8dff0;">
+							<img src="${image}" 
+								alt="${title}" 
+								style="width: 110px; height: 165px; min-width: 110px; max-width: 110px; flex-shrink: 0; border-radius: 6px; object-fit: cover; border: 1px solid rgba(184, 160, 232, 0.4);" />
+							<div style="display: flex; flex-direction: column; gap: 4px;">
+								<div style="font-weight: 600; font-size: 0.95rem; line-height: 1.3;">${title} <span style="font-weight: 400; font-size: 0.85rem; color: #c4b8d8;">(${year})</span></div>
+								${director ? `<div style="font-size: 0.8rem; color: #c4b8d8;">directed by ${director}</div>` : ''}
+							</div>
+						</a>
+					`;
+				} catch (err) {
+					console.error('Letterboxd error:', err);
+					document.getElementById('letterboxd-content').innerHTML = '<p class="error">failed to load</p>';
+				}
+			}
+
+			fetchLastfm();
+			fetchLetterboxd();
+		</script>
 	</body>
 </html>
 
@@ -109,8 +169,6 @@ function getStars(rating: number | null) {
 		min-height: 100vh;
 		align-items: start;
 	}
-
-
 
 	.window-about {
 		grid-column: 2 / 7;
@@ -139,20 +197,12 @@ function getStars(rating: number | null) {
 	.content-block {
 		line-height: 1.6;
 		font-size: 0.9rem;
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 	}
 
-	.content-block p {
-		margin-bottom: 0.5rem;
-	}
-
-	.content-block ul {
-		list-style-type: none;
-		margin-left: 0.5rem;
-	}
-
-	.content-block ul li::before {
-		content: "- ";
-		color: var(--accent-pink);
+	.loading, .error {
+		color: var(--text-muted);
+		font-size: 0.85rem;
 	}
 
 	.links-list {
@@ -176,7 +226,7 @@ function getStars(rating: number | null) {
 	.links-list a::before {
 		content: "↗ ";
 		color: var(--accent-lavender);
-		opacity: 0.5;
+		opacity: 0.8;
 	}
 
 	.discord-copy {
@@ -194,7 +244,7 @@ function getStars(rating: number | null) {
 	.discord-copy::before {
 		content: "↗ ";
 		color: var(--accent-lavender);
-		opacity: 0.5;
+		opacity: 0.8;
 	}
 
 	.discord-copy:hover {
@@ -220,89 +270,5 @@ function getStars(rating: number | null) {
 			grid-row: auto;
 			width: 100%;
 		}
-	}
-
-	.music-link {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-		text-decoration: none;
-		color: var(--text);
-	}
-
-	.music-art {
-		width: 160px;
-		height: 160px;
-		min-width: 160px;
-		max-width: 160px;
-		flex-shrink: 0;
-		border-radius: 6px;
-		object-fit: cover;
-		border: 1px solid var(--border);
-	}
-
-	.music-info {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-	}
-
-	.music-track {
-		font-weight: 600;
-		font-size: 0.95rem;
-	}
-
-	.music-artist {
-		font-size: 0.8rem;
-		color: var(--text-muted);
-	}
-
-	.media-link {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-		text-decoration: none;
-		color: var(--text);
-	}
-
-	.movie-poster {
-		width: 110px;
-		height: 165px;
-		min-width: 110px;
-		max-width: 110px;
-		flex-shrink: 0;
-		border-radius: 6px;
-		object-fit: cover;
-		border: 1px solid var(--border);
-	}
-
-	.media-info {
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-	}
-
-	.media-title {
-		font-weight: 600;
-		font-size: 0.95rem;
-		line-height: 1.3;
-	}
-
-	.media-year {
-		font-weight: 400;
-		font-size: 0.85rem;
-		color: var(--text-muted);
-	}
-
-	.media-director {
-		font-size: 0.8rem;
-		color: var(--text-muted);
-	}
-
-	.media-rating {
-		display: flex;
-		align-items: center;
-		color: var(--accent-pink);
-		margin-top: 4px;
 	}
 </style>

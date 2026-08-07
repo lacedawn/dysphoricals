@@ -24,12 +24,9 @@ const { title, icon = '♡' } = Astro.props;
 
 <style>
   .window {
-    border: 1px solid var(--border);
+    border: 1px solid rgba(184, 160, 232, 0.4);
     border-radius: 6px;
     overflow: hidden;
-    background: rgba(22, 17, 30, 0.2);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
   }
 
   .window-titlebar {
@@ -37,8 +34,8 @@ const { title, icon = '♡' } = Astro.props;
     align-items: center;
     gap: 6px;
     padding: 4px 10px;
-    background: transparent;
-    border-bottom: 1px solid var(--border);
+    background: rgba(40, 35, 50, 0.85);
+    border-bottom: 1px solid rgba(184, 160, 232, 0.3);
     user-select: none;
   }
 
@@ -66,10 +63,11 @@ const { title, icon = '♡' } = Astro.props;
     height: 6px;
     border-radius: 50%;
     background: transparent;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(184, 160, 232, 0.4);
   }
 
   .window-body {
     padding: 20px;
+    background: rgba(40, 35, 50, 0.7);
   }
 </style>
