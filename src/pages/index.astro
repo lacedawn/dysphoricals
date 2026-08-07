@@ -44,10 +44,18 @@ function getStars(rating: number | null) {
 				<div class="window-wrapper window-links">
 					<Window title="socials.url" icon="✧">
 						<div class="content-block links-list">
-							<a href="#">github</a>
-							<a href="#">twitter</a>
-							<a href="#">discord</a>
-							<a href="#">email</a>
+							<div class="links-column">
+								<a href="https://github.com/lacedawn" target="_blank" rel="noopener noreferrer">github</a>
+								<a href="https://x.com/lacedawnn" target="_blank" rel="noopener noreferrer">twitter</a>
+								<a href="https://letterboxd.com/lacedawn/" target="_blank" rel="noopener noreferrer">letterboxd</a>
+								<a href="https://www.last.fm/user/Leno727" target="_blank" rel="noopener noreferrer">last.fm</a>
+							</div>
+							<div class="links-column">
+								<a href="https://www.instagram.com/0lacedawn/" target="_blank" rel="noopener noreferrer">instagram</a>
+								<a href="https://www.reddit.com/user/Puzzleheaded-Taro492/" target="_blank" rel="noopener noreferrer">reddit</a>
+								<a href="mailto:lacedawnn@gmail.com">email</a>
+								<button class="discord-copy" onclick="navigator.clipboard.writeText('giwtwm'); this.textContent = 'copied!'; setTimeout(() => this.textContent = 'discord', 1000)">discord</button>
+							</div>
 						</div>
 					</Window>
 				</div>
@@ -149,8 +157,14 @@ function getStars(rating: number | null) {
 
 	.links-list {
 		display: flex;
+		gap: 24px;
+	}
+
+	.links-column {
+		display: flex;
 		flex-direction: column;
 		gap: 12px;
+		flex: 1;
 	}
 
 	.links-list a {
@@ -163,6 +177,28 @@ function getStars(rating: number | null) {
 		content: "↗ ";
 		color: var(--accent-lavender);
 		opacity: 0.5;
+	}
+
+	.discord-copy {
+		background: none;
+		border: none;
+		color: var(--text);
+		font-family: 'JetBrains Mono', monospace;
+		font-size: inherit;
+		padding: 0;
+		cursor: pointer;
+		text-align: left;
+		display: inline-block;
+	}
+
+	.discord-copy::before {
+		content: "↗ ";
+		color: var(--accent-lavender);
+		opacity: 0.5;
+	}
+
+	.discord-copy:hover {
+		color: var(--text);
 	}
 
 	.journal-link {
