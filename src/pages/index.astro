@@ -11,11 +11,12 @@ const TMDB_API_KEY = import.meta.env.PUBLIC_TMDB_API_KEY || '';
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/dysphoricals/favicon.svg" />
+		<link rel="preload" as="image" href="/dysphoricals/bg.webp" fetchpriority="high" />
 		<title>dysphoricals</title>
 	</head>
 	<body>
 		<div id="bg-layer">
-			<img src="/dysphoricals/bg.webp" alt="" />
+			<img src="/dysphoricals/bg.webp" alt="" loading="eager" fetchpriority="high" />
 		</div>
 		<div id="page-content">
 			<div class="desktop-layout">
