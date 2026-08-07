@@ -2,6 +2,21 @@
 import '../styles/global.css';
 import Window from '../components/Window.astro';
 import lastfmData from '../data/lastfm.json';
+import letterboxdData from '../data/letterboxd.json';
+
+function getStars(rating: number | null) {
+  if (!rating) return '';
+  const full = Math.floor(rating);
+  const half = rating % 1 !== 0;
+  
+  const starSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+  const halfStarSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" clip-path="inset(0 50% 0 0)"/></svg>`;
+  
+  let out = '';
+  for(let i=0; i<full; i++) out += starSvg;
+  if(half) out += halfStarSvg;
+  return out;
+}
 ---
 
 <html lang="en">
@@ -54,7 +69,16 @@ import lastfmData from '../data/lastfm.json';
 				<div class="window-wrapper window-watch">
 					<Window title="lastwatched.ogg" icon="▶">
 						<div class="content-block">
-							
+							{letterboxdData && (
+								<a href={letterboxdData.url} target="_blank" rel="noopener noreferrer" class="media-link">
+									<img src={letterboxdData.image} alt={letterboxdData.title} class="movie-poster" />
+									<div class="media-info">
+										<div class="media-title">{letterboxdData.title} <span class="media-year">({letterboxdData.year})</span></div>
+										{letterboxdData.director && <div class="media-director">{letterboxdData.director}</div>}
+										{letterboxdData.rating && <div class="media-rating" set:html={getStars(letterboxdData.rating)}></div>}
+									</div>
+								</a>
+							)}
 						</div>
 					</Window>
 				</div>
@@ -97,7 +121,7 @@ import lastfmData from '../data/lastfm.json';
 	}
 
 	.window-watch {
-		grid-column: 7 / 12;
+		grid-column: 8 / 12;
 		grid-row: 2;
 		margin-top: 40px;
 	}
@@ -166,6 +190,9 @@ import lastfmData from '../data/lastfm.json';
 	.music-art {
 		width: 160px;
 		height: 160px;
+		min-width: 160px;
+		max-width: 160px;
+		flex-shrink: 0;
 		border-radius: 6px;
 		object-fit: cover;
 		border: 1px solid var(--border);
@@ -185,5 +212,54 @@ import lastfmData from '../data/lastfm.json';
 	.music-artist {
 		font-size: 0.8rem;
 		color: var(--text-muted);
+	}
+
+	.media-link {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		text-decoration: none;
+		color: var(--text);
+	}
+
+	.movie-poster {
+		width: 110px;
+		height: 165px;
+		min-width: 110px;
+		max-width: 110px;
+		flex-shrink: 0;
+		border-radius: 6px;
+		object-fit: cover;
+		border: 1px solid var(--border);
+	}
+
+	.media-info {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.media-title {
+		font-weight: 600;
+		font-size: 0.95rem;
+		line-height: 1.3;
+	}
+
+	.media-year {
+		font-weight: 400;
+		font-size: 0.85rem;
+		color: var(--text-muted);
+	}
+
+	.media-director {
+		font-size: 0.8rem;
+		color: var(--text-muted);
+	}
+
+	.media-rating {
+		display: flex;
+		align-items: center;
+		color: var(--accent-pink);
+		margin-top: 4px;
 	}
 </style>

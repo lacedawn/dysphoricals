@@ -9,9 +9,7 @@ const ENDPOINT = `https://letterboxd.com/${USER}/rss/`;
 
 async function fetchLetterboxd() {
   const res = await fetch(ENDPOINT, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; LetterboxdFetcher/1.0)'
-    }
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LetterboxdFetcher/1.0)' }
   });
   if (!res.ok) throw new Error(`Letterboxd RSS error: ${res.status}`);
 
@@ -27,11 +25,28 @@ async function fetchLetterboxd() {
   const linkMatch = itemXml.match(/<link>(.*?)<\/link>/);
   const imgMatch = itemXml.match(/<img src="([^"]+)"/);
 
+  let director = '';
+  let localImagePath = '';
+  
+  if (linkMatch) {
+    const filmUrl = linkMatch[1];
+    const baseFilmUrl = filmUrl.replace(`/${USER}`, '');
+    const filmRes = await fetch(baseFilmUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LetterboxdFetcher/1.0)' }
+    });
+    if (filmRes.ok) {
+      const filmHtml = await filmRes.text();
+      const dirMatch = filmHtml.match(/<meta name="twitter:data1" content="([^"]+)"/);
+      if (dirMatch) director = dirMatch[1];
+    }
+  }
+
   const result = {
     title: titleMatch ? titleMatch[1] : '',
     year: yearMatch ? yearMatch[1] : '',
     rating: ratingMatch ? parseFloat(ratingMatch[1]) : null,
     image: imgMatch ? imgMatch[1] : '',
+    director: director,
     url: linkMatch ? linkMatch[1] : '',
     fetchedAt: new Date().toISOString()
   };
