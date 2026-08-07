@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Window from '../components/Window.astro';
+import lastfmData from '../data/lastfm.json';
 ---
 
 <html lang="en">
@@ -37,7 +38,15 @@ import Window from '../components/Window.astro';
 				<div class="window-wrapper window-music">
 					<Window title="lastlistened.ogg" icon="♫">
 						<div class="content-block">
-							
+							{lastfmData && (
+								<a href={lastfmData.url} target="_blank" rel="noopener noreferrer" class="music-link">
+									<img src={lastfmData.image} alt="Album Art" class="music-art" />
+									<div class="music-info">
+										<div class="music-track">{lastfmData.name}</div>
+										<div class="music-artist">{lastfmData.artist}</div>
+									</div>
+								</a>
+							)}
 						</div>
 					</Window>
 				</div>
@@ -82,7 +91,7 @@ import Window from '../components/Window.astro';
 	}
 
 	.window-music {
-		grid-column: 3 / 6;
+		grid-column: 2 / 6;
 		grid-row: 2;
 		margin-top: -30px;
 	}
@@ -144,5 +153,37 @@ import Window from '../components/Window.astro';
 			grid-row: auto;
 			width: 100%;
 		}
+	}
+
+	.music-link {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		text-decoration: none;
+		color: var(--text);
+	}
+
+	.music-art {
+		width: 160px;
+		height: 160px;
+		border-radius: 6px;
+		object-fit: cover;
+		border: 1px solid var(--border);
+	}
+
+	.music-info {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.music-track {
+		font-weight: 600;
+		font-size: 0.95rem;
+	}
+
+	.music-artist {
+		font-size: 0.8rem;
+		color: var(--text-muted);
 	}
 </style>
