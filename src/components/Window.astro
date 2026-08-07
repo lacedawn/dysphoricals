@@ -27,29 +27,29 @@ const { title, icon = '♡' } = Astro.props;
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
-    background: var(--bg-card);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(22, 17, 30, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .window-titlebar {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    background: rgba(46, 36, 64, 0.5);
+    gap: 6px;
+    padding: 4px 10px;
+    background: transparent;
     border-bottom: 1px solid var(--border);
     user-select: none;
   }
 
   .window-icon {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: var(--accent-pink);
     line-height: 1;
   }
 
   .window-title {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 500;
     color: var(--text-muted);
     letter-spacing: 0.02em;
@@ -58,15 +58,15 @@ const { title, icon = '♡' } = Astro.props;
 
   .window-dots {
     display: flex;
-    gap: 6px;
+    gap: 4px;
   }
 
   .dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: rgba(138, 123, 153, 0.3);
-    border: 1px solid rgba(138, 123, 153, 0.2);
+    background: transparent;
+    border: 1px solid var(--border);
   }
 
   .window-body {

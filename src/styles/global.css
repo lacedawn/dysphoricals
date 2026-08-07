@@ -3,7 +3,7 @@
 :root {
   --bg: #0e0b13;
   --bg-card: rgba(22, 17, 30, 0.72);
-  --border: #2e2440;
+  --border: rgba(184, 160, 232, 0.3);
   --text: #e8dff0;
   --text-muted: #8a7b99;
   --accent-pink: #e8a0bf;

@@ -14,9 +14,135 @@ import Window from '../components/Window.astro';
 			<img src="/dysphoricals/bg.png" alt="" />
 		</div>
 		<div id="page-content">
-			<Window title="about.info">
-				<p>hello world</p>
-			</Window>
+			<div class="desktop-layout">
+				<div class="window-wrapper window-about">
+					<Window title="about.info" icon="♡">
+						<div class="content-block">
+							<p>hi! im lena. im a 17 years old high school student from iraq</p>
+						</div>
+					</Window>
+				</div>
+				
+				<div class="window-wrapper window-links">
+					<Window title="socials.url" icon="✧">
+						<div class="content-block links-list">
+							<a href="#">github</a>
+							<a href="#">twitter</a>
+							<a href="#">discord</a>
+							<a href="#">email</a>
+						</div>
+					</Window>
+				</div>
+
+				<div class="window-wrapper window-music">
+					<Window title="lastlistened.ogg" icon="♫">
+						<div class="content-block">
+							
+						</div>
+					</Window>
+				</div>
+
+				<div class="window-wrapper window-watch">
+					<Window title="lastwatched.ogg" icon="▶">
+						<div class="content-block">
+							
+						</div>
+					</Window>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
+
+<style>
+	.desktop-layout {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		grid-template-rows: auto auto auto;
+		gap: 24px;
+		padding: 48px;
+		max-width: 1400px;
+		margin: 0 auto;
+		min-height: 100vh;
+		align-items: start;
+	}
+
+
+
+	.window-about {
+		grid-column: 2 / 7;
+		grid-row: 1;
+		margin-top: 20px;
+	}
+
+	.window-links {
+		grid-column: 8 / 11;
+		grid-row: 1;
+		margin-top: 60px;
+	}
+
+	.window-music {
+		grid-column: 3 / 6;
+		grid-row: 2;
+		margin-top: -30px;
+	}
+
+	.window-watch {
+		grid-column: 7 / 12;
+		grid-row: 2;
+		margin-top: 40px;
+	}
+
+	.content-block {
+		line-height: 1.6;
+		font-size: 0.9rem;
+	}
+
+	.content-block p {
+		margin-bottom: 0.5rem;
+	}
+
+	.content-block ul {
+		list-style-type: none;
+		margin-left: 0.5rem;
+	}
+
+	.content-block ul li::before {
+		content: "- ";
+		color: var(--accent-pink);
+	}
+
+	.links-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.links-list a {
+		color: var(--text);
+		text-decoration: none;
+		display: inline-block;
+	}
+
+	.links-list a::before {
+		content: "↗ ";
+		color: var(--accent-lavender);
+		opacity: 0.5;
+	}
+
+	@media (max-width: 900px) {
+		.desktop-layout {
+			display: flex;
+			flex-direction: column;
+			padding: 24px;
+			gap: 24px;
+		}
+
+		.window-about, .window-links, .window-music, .window-watch {
+			margin-top: 0;
+			grid-column: auto;
+			grid-row: auto;
+			width: 100%;
+		}
+	}
+</style>
