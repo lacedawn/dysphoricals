@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+import Window from '../components/Window.astro';
 ---
 
 <html lang="en">
@@ -8,6 +10,13 @@
 		<title>dysphoricals</title>
 	</head>
 	<body>
-		<h1>hello world</h1>
+		<div id="bg-layer">
+			<img src="/dysphoricals/bg.png" alt="" />
+		</div>
+		<div id="page-content">
+			<Window title="about.info">
+				<p>hello world</p>
+			</Window>
+		</div>
 	</body>
 </html>

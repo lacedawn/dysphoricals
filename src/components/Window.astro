@@ -1,0 +1,75 @@
+---
+interface Props {
+  title: string;
+  icon?: string;
+}
+
+const { title, icon = '♡' } = Astro.props;
+---
+
+<div class="window">
+  <div class="window-titlebar">
+    <span class="window-icon">{icon}</span>
+    <span class="window-title">{title}</span>
+    <div class="window-dots">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </div>
+  <div class="window-body">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .window {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .window-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(46, 36, 64, 0.5);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .window-icon {
+    font-size: 0.8rem;
+    color: var(--accent-pink);
+    line-height: 1;
+  }
+
+  .window-title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+    flex: 1;
+  }
+
+  .window-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(138, 123, 153, 0.3);
+    border: 1px solid rgba(138, 123, 153, 0.2);
+  }
+
+  .window-body {
+    padding: 20px;
+  }
+</style>
