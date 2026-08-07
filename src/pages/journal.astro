@@ -13,6 +13,7 @@ const sortedEntries = entries.sort((a, b) =>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/dysphoricals/favicon.svg" />
 		<title>journal</title>
 	</head>
 	<body>
@@ -22,6 +23,7 @@ const sortedEntries = entries.sort((a, b) =>
 		<div id="page-content">
 			<div class="journal-container">
 				<Window title="journal.log">
+					<a href="/dysphoricals/" class="back-link">← back to home</a>
 					{sortedEntries.length === 0 ? (
 						<p class="empty-state">no entries yet</p>
 					) : (
@@ -48,7 +50,7 @@ const sortedEntries = entries.sort((a, b) =>
 <style>
 	.journal-container {
 		padding: 48px;
-		max-width: 900px;
+		max-width: 700px;
 		margin: 0 auto;
 		min-height: 100vh;
 	}
@@ -56,6 +58,18 @@ const sortedEntries = entries.sort((a, b) =>
 	.empty-state {
 		color: var(--text-muted);
 		font-size: 0.85rem;
+	}
+
+	.back-link {
+		display: inline-block;
+		color: var(--text-muted);
+		text-decoration: none;
+		font-size: 0.8rem;
+		margin-bottom: 20px;
+	}
+
+	.back-link:hover {
+		color: var(--accent-lavender);
 	}
 
 	.entry-list {

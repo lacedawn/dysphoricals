@@ -1,0 +1,76 @@
+---
+import '../styles/global.css';
+import Window from '../components/Window.astro';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/dysphoricals/favicon.svg" />
+		<title>404</title>
+	</head>
+	<body>
+		<div id="bg-layer">
+			<img src="/dysphoricals/bg.png" alt="" />
+		</div>
+		<div id="page-content">
+			<div class="error-container">
+				<Window title="404.error">
+					<div class="error-content">
+						<p class="error-message">page not found</p>
+						<nav class="error-nav">
+							<a href="/dysphoricals/">home</a>
+							<a href="/dysphoricals/journal">journal</a>
+						</nav>
+					</div>
+				</Window>
+			</div>
+		</div>
+	</body>
+</html>
+
+<style>
+	.error-container {
+		padding: 48px;
+		max-width: 600px;
+		margin: 0 auto;
+		min-height: 100vh;
+		display: flex;
+		align-items: center;
+	}
+
+	.error-content {
+		text-align: center;
+	}
+
+	.error-message {
+		color: var(--text-muted);
+		font-size: 0.9rem;
+		margin-bottom: 24px;
+	}
+
+	.error-nav {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		align-items: center;
+	}
+
+	.error-nav a {
+		color: var(--text);
+		text-decoration: none;
+		font-size: 0.85rem;
+	}
+
+	.error-nav a:hover {
+		color: var(--accent-lavender);
+		text-decoration: underline;
+	}
+
+	@media (max-width: 900px) {
+		.error-container {
+			padding: 24px;
+		}
+	}
+</style>
