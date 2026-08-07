@@ -110,8 +110,8 @@ const LASTFM_API_KEY = import.meta.env.PUBLIC_LASTFM_API_KEY || '';
 					const item = xmlDoc.querySelector('item');
 					if (!item) throw new Error('No items found');
 					
-					const title = item.querySelector('filmTitle')?.textContent || '';
-					const year = item.querySelector('filmYear')?.textContent || '';
+					const title = item.querySelector('letterboxd\\:filmTitle, filmTitle')?.textContent || '';
+					const year = item.querySelector('letterboxd\\:filmYear, filmYear')?.textContent || '';
 					const url = item.querySelector('link')?.textContent || '';
 					
 					const description = item.querySelector('description')?.textContent || '';
