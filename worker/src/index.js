@@ -12,6 +12,8 @@ export default {
 		}
 
 		try {
+			validateEnvironment(env, url.pathname);
+
 			if (url.pathname === '/lastfm') {
 				return handleLastfm(env, corsHeaders);
 			} else if (url.pathname === '/letterboxd') {
@@ -31,6 +33,25 @@ export default {
 		}
 	}
 };
+
+function validateEnvironment(env, pathname) {
+	if (pathname === '/lastfm') {
+		if (!env.LASTFM_USER) {
+			throw new Error('LASTFM_USER not configured');
+		}
+		if (!env.LASTFM_API_KEY) {
+			throw new Error('LASTFM_API_KEY not configured');
+		}
+	} else if (pathname === '/letterboxd') {
+		if (!env.LETTERBOXD_USER) {
+			throw new Error('LETTERBOXD_USER not configured');
+		}
+	} else if (pathname === '/tmdb') {
+		if (!env.TMDB_API_KEY) {
+			throw new Error('TMDB_API_KEY not configured');
+		}
+	}
+}
 
 async function handleLastfm(env, corsHeaders) {
 	const endpoint = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${env.LASTFM_USER}&api_key=${env.LASTFM_API_KEY}&format=json&limit=1`;
