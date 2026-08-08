@@ -6,6 +6,7 @@ const journalCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
+    pinned: z.boolean().optional(),
   }),
 });
 

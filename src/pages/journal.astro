@@ -4,9 +4,11 @@ import Window from '../components/Window.astro';
 import { getCollection } from 'astro:content';
 
 const entries = await getCollection('journal');
-const sortedEntries = entries.sort((a, b) => 
-  b.data.date.getTime() - a.data.date.getTime()
-);
+const sortedEntries = entries.sort((a, b) => {
+  if (a.data.pinned && !b.data.pinned) return -1;
+  if (!a.data.pinned && b.data.pinned) return 1;
+  return b.data.date.getTime() - a.data.date.getTime();
+});
 ---
 
 <html lang="en">
@@ -34,7 +36,10 @@ const sortedEntries = entries.sort((a, b) =>
 									<li class="entry-row">
 										<a href={`/dysphoricals/journal/${slug}`} class="entry-link">
 											<span class="entry-date">{entry.data.date.toISOString().split('T')[0]}</span>
-											<span class="entry-title">{entry.data.title}</span>
+											<span class="entry-title">
+												{entry.data.pinned && <span class="pin-icon">📌</span>}
+												{entry.data.title}
+											</span>
 										</a>
 									</li>
 								);
@@ -107,6 +112,14 @@ const sortedEntries = entries.sort((a, b) =>
 
 	.entry-title {
 		color: var(--text);
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.pin-icon {
+		font-size: 0.7rem;
+		color: var(--text-muted);
 	}
 
 	@media (max-width: 900px) {
